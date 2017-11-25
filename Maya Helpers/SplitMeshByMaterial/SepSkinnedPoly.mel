@@ -1,0 +1,108 @@
+// Poly Separate
+// Copyright (C) 2012 Basenji Games
+// Licensed under the MIT license
+//
+// 2017-11-24 enimaroah
+// added support for skinned geometry
+// fixed/changed:
+// - removed creation of extra group
+// - forced selectMode
+// - process all selected meshes
+// - meshes with one material aren't processed
+// - retain current selection
+
+{
+	$componentMode = false;
+	if (`selectMode -q -co`)
+	{
+		selectMode -o;
+		$componentMode = true;
+	}
+
+	string $selection[] = `ls -sl`;
+	for ($s in $selection)
+	{
+		sepMat($s);
+	}
+	select $selection;
+
+	if ($componentMode == true)
+	{
+		selectMode -co;
+	}
+}
+
+global proc sepMat(string $object)
+{
+	string $shadingGroups[] = getSGsFromShape($object);
+	if (size($shadingGroups) <= 1)
+	{
+		return;
+	}
+	//string $ParentName = ($object + "_lightMap_Group");
+	//group -empty -n $ParentName;
+	string $skinCluster = findRelatedSkinCluster($object);
+	if ($skinCluster != "")
+	{
+		if (!`exists removeUnusedForSkin`)
+		{
+			source "removeUnusedInfluences";
+		}
+	}
+	//string $curUVSet = `getAttr $object.currentUVSet`;
+
+	for ($i = 0; $i < size($shadingGroups) ; $i = $i + 1)
+	{
+		string $theMaterial[] = `listConnections -d off -s on $shadingGroups[$i]`;
+		string $clone = ($object + "_" + $theMaterial[0]);
+		duplicate -n $clone  $object;
+		//parent $clone $ParentName;
+		
+			string $material[] = `listConnections -d off -s on $shadingGroups[$i]`;
+			select $clone; ConvertSelectionToFaces;
+			string $tempset = `sets`;
+			string $tempgrps[] = `listConnections -type shadingEngine $material[0]`;
+			select `sets -int $tempset $tempgrps[0]`;
+			
+			
+			InvertSelection;
+			delete;
+
+		if ($skinCluster != "")
+		{
+			string $influences[] = `skinCluster -q -inf $skinCluster`;
+			skinCluster -bindMethod 0 -normalizeWeights 1 -weightDistribution 0 -mi 4 -omi true -dr 4 -rui false $influences[0] $clone;
+
+			string $cloneSkinCluster = findRelatedSkinCluster($clone);
+			//copySkinWeights -noMirror -surfaceAssociation closestPoint -uvSpace $curUVSet $curUVSet -influenceAssociation name -ss $skinCluster -ds $cloneSkinCluster;
+			copySkinWeights -noMirror -surfaceAssociation closestPoint -influenceAssociation name -ss $skinCluster -ds $cloneSkinCluster;
+
+			removeUnusedForSkin($cloneSkinCluster, 0);
+		}
+	}
+	//delete $object;
+}
+
+
+
+proc string[] getSGsFromShape( string $shape )
+{
+string $myShapeNode[] = `listRelatives -children -shapes $shape`;
+  string $shadingEngines[];
+
+  if ( `objExists $shape` )
+  {
+    string $dest[] = `listConnections -destination true -source false
+      -plugs false -type "shadingEngine" $myShapeNode[0]`;
+
+    if ( size( $dest ) )
+    {
+      string $select[] = `ls -sl`;
+      select -r -ne $dest;
+      $shadingEngines = `ls -sl`;
+      select -r $select;
+    }
+  }
+
+  return $shadingEngines;
+}
