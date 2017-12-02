@@ -1,0 +1,22 @@
+FBX importer kills normals of skinned meshes and generates new ones
+
+Workaround:
+1) In Sb3UGS export twice: once with "Skin" option, once without
+2) In Maya import one file, rename the each mesh, import second file
+3) For each mesh pair (unskinned and skinned counterpart):
+	select unskinned mesh first, then the skinned to
+		Mesh / Transfer Attributes []
+		-> Attributes To Transfer
+			Vertex Normal: On
+			all others: off
+		-> Attribute Settings
+			Sample Space: Component
+			Mirroring: off
+			Search method: Closest to point
+4) Dont delete any of the unskinned meshes or select the skinned meshes and
+   Mesh Display / Lock Normals
+5) FBX export now provides the correct normals for both types of meshes
+6) If any unskinned meshes were exported, then uncheck them in Sb3UGS before replacing
+
+The MEL command for the transfer:
+transferAttributes -transferPositions 0 -transferNormals 1 -transferUVs 0 -transferColors 0 -sampleSpace 4 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
