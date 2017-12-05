@@ -1,0 +1,61 @@
+Index: ppFormat.cs
+===================================================================
+--- ppFormat.cs	(revision 425)
++++ ppFormat.cs	(working copy)
+@@ -5,6 +5,8 @@
+ using System.IO;
+ using System.IO.Compression;
+ using System.Security.Cryptography;
++using SlimDX;
++using SlimDX.Direct3D9;
+ 
+ namespace SB3Utility
+ {
+@@ -127,6 +129,12 @@
+ 						}
+ 					}
+ 				}
++
++				if (resultFormat == null)
++				{
++					resultFormat = header.ppFormats[0];
++					Report.ReportLog("Couldn't auto-detect the ppFormat. Using " + resultFormat.Name + " instead");
++				}
+ 			}
+ 
+ 			return resultFormat;
+@@ -157,6 +165,10 @@
+ 			{
+ 				tryFunc = new Func<ppSubfile, bool>(TryFileEMA);
+ 			}
++			else if (Utility.ImageSupported(ext))
++			{
++				tryFunc = new Func<ppSubfile, bool>(TryFileImage);
++			}
+ 
+ 			if (tryFunc != null)
+ 			{
+@@ -249,6 +261,24 @@
+ 
+ 			return false;
+ 		}
++
++		private static bool TryFileImage(ppSubfile subfile)
++		{
++			try
++			{
++				using (BinaryReader reader = new BinaryReader(subfile.CreateReadStream()))
++				{
++					byte[] data = reader.ReadToEnd();
++					var imgInfo = ImageInformation.FromMemory(data);
++				}
++			}
++			catch
++			{
++				return false;
++			}
++
++			return true;
++		}
+ 		#endregion
+ 	}
