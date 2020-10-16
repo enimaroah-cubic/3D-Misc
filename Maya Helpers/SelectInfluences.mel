@@ -1,0 +1,8 @@
+// Select a mesh, then have this script executed. Now all used joints are selected.
+// Add select your mesh and "Bind Skin" with "Selected joints" option.
+
+{
+	string $sel[] = `ls -sl`;
+	string $inf[] = `skinCluster -q -inf $sel[0]`;
+	select $inf;
+}
