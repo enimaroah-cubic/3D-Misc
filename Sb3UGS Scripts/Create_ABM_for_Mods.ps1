@@ -10,7 +10,7 @@ Installation and creating that ABM:
    Store this script in the game's root folder
    Create a shortcut in the game's root folder to SB3UtilityScript.exe with the name SB3UtilityScript.lnk
    Then start it in a Command Prompt with:
-   > powershell -noprofile -executionpolicy bypass Create_ABM_for_Mods.ps1
+   > powershell -noprofile -executionpolicy bypass -file Create_ABM_for_Mods.ps1
 
 Known issues:
    - Game or DC hang on startup after updating an older mod.
