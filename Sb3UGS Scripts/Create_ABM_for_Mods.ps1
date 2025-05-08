@@ -19,6 +19,7 @@ Known issues:
 History:
 03-Feb-25 initial release
 05-Feb-25 computing CABString, ABM for DC mods without ABM
+08-May-25 fixed bug for game folders containing blanks
 #>
 
 cd (Split-Path -Path $PSCommandPath)
@@ -63,7 +64,7 @@ unityParser = OpenUnity3d(path="
 unityEditor = Unity3dEditor(parser=unityParser)
 unityEditor.CopyToClipboardAssetBundleManifest(asset=unityParser.Cabinet.Components[1])
 "@ | Set-Content ABM_Into_Clipboard.script
-		cmd /c ".\SB3UtilityScript.lnk %CD%\ABM_Into_Clipboard.script"
+		cmd /c ".\SB3UtilityScript.lnk ""%CD%\ABM_Into_Clipboard.script"""
 		Get-Clipboard | Select-String -Pattern '<[^>]*>' -AllMatches | ForEach-Object { $_.Matches[1].Value.Substring(1, $_.Matches[1].Value.Length - 2) }
 	} | Sort-Object
 Remove-Item ABM_Into_Clipboard.script
@@ -117,7 +118,7 @@ unityEditor.SaveUnity3d(path=".\abdata\
 "@ + $dest +
 		'", keepBackup=False, backupExtension="", background=False, clearMainAsset=True, pathIDsMode=-1, compressionLevel=0, compressionBufferSize=0)' |
 		Set-Content Clipboard_Into_ABM.script
-	cmd /c ".\SB3UtilityScript.lnk %CD%\Clipboard_Into_ABM.script"
+	cmd /c ".\SB3UtilityScript.lnk ""%CD%\Clipboard_Into_ABM.script"""
 	Remove-Item Clipboard_Into_ABM.script
 	If ($sv -and $hc)
 	{
@@ -164,7 +165,7 @@ unityEditor.SaveUnity3d(path=".\abdata\
 "@ + $dest +
 		'", keepBackup=False, backupExtension="", background=False, clearMainAsset=True, pathIDsMode=-1, compressionLevel=0, compressionBufferSize=0)' |
 		Set-Content Clipboard_Into_ABM.script
-	cmd /c ".\SB3UtilityScript.lnk %CD%\Clipboard_Into_ABM.script"
+	cmd /c ".\SB3UtilityScript.lnk ""%CD%\Clipboard_Into_ABM.script"""
 	Remove-Item Clipboard_Into_ABM.script
 	If ($sv -and $hc)
 	{
