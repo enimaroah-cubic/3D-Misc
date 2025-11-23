@@ -20,6 +20,7 @@ History:
 03-Feb-25 initial release
 05-Feb-25 computing CABString, ABM for DC mods without ABM
 08-May-25 fixed bug for game folders containing blanks
+23-Nov-25 support for AC
 #>
 
 cd (Split-Path -Path $PSCommandPath)
